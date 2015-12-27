@@ -47,18 +47,22 @@ int RED::exist(int row, int col){
 }
 
 
-void Matrix::print(){
-    /*cout<<"dimensione matrice"<<endl;
-    cout<<"righe "<<N_row<<endl;
-    cout<<"colonne "<<N_col<<endl;*/
+void Matrix::print(string output, int first, int iteration){
+    ofstream out;
+    if(first) out.open(output,ios::trunc);
+    else out.open(output, ios::app);
+    out<<"iterazione "<<iteration<<endl;
     for(int i=1; i<=N_row;i++){
-     for(int j=1; j<=N_col;j++){
+     for(int j=1; j<N_col;j++){
         int b=blue.exist(i,j);
         int r=red.exist(i,j);
-        cout<<b+2*r<<" ";
+        out<<b+2*r<<",";
         }
-     cout<<endl;
+        int b=blue.exist(i,N_col);
+        int r=red.exist(i,N_col);
+        out<<b+2*r<<endl;
     }
+    out.close();
  }
 
 

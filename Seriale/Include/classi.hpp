@@ -46,7 +46,7 @@ class Matrix{
                 bool move_blue=true;
 	public:
                 Matrix(string input);
-                void print();
+                void print(string output, int first, int iteration);
                 void update(int iteration);
 };
 

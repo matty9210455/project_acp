@@ -10,17 +10,17 @@ using namespace std;
 
 
 
-int main (){
+int main (int argc, char* argv[]){
 
     vector<int> iteration;
-    string input("prova.txt");
 
+    
     //iterazioni
 
     int value;
 
     //apertura e controllo file
-    ifstream f(input);
+    ifstream f(argv[1]);
     string s;
     if(!f){//check file giusto
             cout<<"file non esiste"<<endl;
@@ -35,12 +35,13 @@ int main (){
             it++;
     }
     f.close();
-        Matrix A(input);
-        A.print();
-    for (int i=0;i<iteration.size();i++){
-    cout<<iteration[i]<<endl;
+
+        Matrix A(argv[1]);
+        A.print(argv[2],1,0);
+    auto N=iteration.size();
+    for (unsigned int i=0;i<N;i++){
     A.update(iteration[i]);
-    A.print();
+    A.print(argv[2],0,iteration[i]);
     }
 	return 0;
 };
