@@ -16,6 +16,7 @@ private:
 public:
     int exist(int row, int col);
     void add(int row, int col);
+    void add_last_col(int Col);
     void update(vector<int>::iterator point ,int col, int N_row);
     int operator[] (int i) {return Blue[i-1][0];};
     vector<int>::iterator begin (int col) {return Blue[col-1].begin();};
@@ -31,6 +32,7 @@ private:
 public:
     int exist(int row, int col);
     void add(int row, int col);
+    void add_last_row(int Row);
     void update(vector<int>::iterator point ,int row, int N_col);
     int operator[] (int i) {return Red[i-1][0];};
     vector<int>::iterator begin (int row) {return Red[row-1].begin();};

@@ -3,6 +3,8 @@
 #include<vector>
 #include<stdlib.h>
 #include<classi.hpp>
+#include<string>
+#include<sstream>
 
 //ritorn 1 se ho elemento
 int BLUE::exist(int row, int col){
@@ -12,9 +14,12 @@ int BLUE::exist(int row, int col){
     if(pos==0) return Blue[col-1][0]==row;
     //più elementi
     int move=N/2;
+
     while(move!=0){
+        if(col==5) cout<<"problem 1"<<endl;
         if(Blue[col-1][pos]==row) return 1;
         move=move/2;
+        if(col==5) cout<<"problem 2"<<endl;
         if(Blue[col-1][pos]<row){ pos=pos+move;}
         else{ pos=pos-move;}
     }
@@ -48,18 +53,26 @@ int RED::exist(int row, int col){
 
 
 void Matrix::print(int iteration){
+    string output;
+    stringstream convert;
+    convert<<iteration;
+    output=convert.str();
+    output.push_back('.');
+    output.push_back('c');
+    output.push_back('s');
+    output.push_back('v');
     ofstream out;
-    for(int n_cifre=1;10^(n_cifre)<iteration;n_cifre++)
-    char output[20];
-    itoa (iteration,output,10);
     out.open(output,ios::trunc);
+
     for(int i=1; i<=N_row;i++){
      for(int j=1; j<N_col;j++){
         int b=blue.exist(i,j);
         int r=red.exist(i,j);
+
         out<<b+2*r<<",";
         }
         int b=blue.exist(i,N_col);
+
         int r=red.exist(i,N_col);
         out<<b+2*r<<endl;
     }

@@ -14,16 +14,17 @@ int main (){
 
     vector<int> iteration;
 
-    
+
     //iterazioni
 
     int value;
 
     //apertura e controllo file
-	
-    ifstream f("problem.csv");
+    string input("problem.csv");
+    ifstream f(input);
     string s;
     if(!f){//check file giusto
+
             cout<<"file non esiste"<<endl;
             return 0;
     }
@@ -37,12 +38,16 @@ int main (){
     }
     f.close();
 
-    Matrix A("problem.csv");
-    
-	    A.print(argv[2],1,0);
+    Matrix A(input);
+
     auto N=iteration.size();
-    for (unsigned int i=0;i<N;i++){
-    A.update(iteration[i]);
+    if(N==0){
+        cout<<"non ho iterazioni"<<endl;
+        exit(1);
+    }
+    A.update(iteration[0]);
+    for (unsigned int i=1;i<N;i++){
+    A.update(iteration[i]-iteration[i-1]);
     A.print(iteration[i]);
     }
 	return 0;
