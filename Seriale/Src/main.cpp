@@ -29,7 +29,7 @@ int main (int argc, char* argv[]){
 		//return 0;	
 	}	
 	
-    ifstream f(argv[1]);
+    ifstream f("problem.csv");
     string s;
     if(!f){//check file giusto
             cout<<"file non esiste"<<endl;
