@@ -47,11 +47,12 @@ int RED::exist(int row, int col){
 }
 
 
-void Matrix::print(string output, int first, int iteration){
+void Matrix::print(int iteration){
     ofstream out;
-    if(first) out.open(output,ios::trunc);
-    else out.open(output, ios::app);
-    out<<"iterazione "<<iteration<<endl;
+    for(int n_cifre=1;10^(n_cifre)<iteration;n_cifre++)
+    char output[20];
+    itoa (iteration,output,10);
+    out.open(output,ios::trunc);
     for(int i=1; i<=N_row;i++){
      for(int j=1; j<N_col;j++){
         int b=blue.exist(i,j);

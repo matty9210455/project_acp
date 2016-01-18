@@ -10,7 +10,7 @@ using namespace std;
 
 
 
-int main (int argc, char* argv[]){
+int main (){
 
     vector<int> iteration;
 
@@ -20,14 +20,6 @@ int main (int argc, char* argv[]){
     int value;
 
     //apertura e controllo file
-    if(argc<3){	
-		if(argc<2){
-    		cout<<"non ho nome file input"<<endl;
-    		return 0;
-		}
-		cout<<"non ho nome file output"<<endl;
-		//return 0;	
-	}	
 	
     ifstream f("problem.csv");
     string s;
@@ -45,13 +37,13 @@ int main (int argc, char* argv[]){
     }
     f.close();
 
-        Matrix A(argv[1]);
+    Matrix A("problem.csv");
     
 	    A.print(argv[2],1,0);
     auto N=iteration.size();
     for (unsigned int i=0;i<N;i++){
     A.update(iteration[i]);
-    A.print(argv[2],0,iteration[i]);
+    A.print(iteration[i]);
     }
 	return 0;
 };
