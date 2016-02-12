@@ -1,2 +1,2 @@
 #!/bin/bash
-make -f Serial_makefile
+make -f St
