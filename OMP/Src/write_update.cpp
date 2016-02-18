@@ -1,3 +1,4 @@
+#include<omp.h>
 #include<iostream>
 #include<fstream>
 #include<vector>
@@ -16,10 +17,8 @@ int BLUE::exist(int row, int col){
     int move=N/2;
 
     while(move!=0){
-        if(col==5) cout<<"problem 1"<<endl;
         if(Blue[col-1][pos]==row) return 1;
         move=move/2;
-        if(col==5) cout<<"problem 2"<<endl;
         if(Blue[col-1][pos]<row){ pos=pos+move;}
         else{ pos=pos-move;}
     }
@@ -87,8 +86,14 @@ void BLUE::update(vector<int>::iterator point ,int col, int N_row){
         (*point)=(*point)+1;
         return;
     }else{
-        Blue[col-1].erase(point);
-        Blue[col-1].insert(Blue[col-1].begin(),1);//migliorare
+        int N=Blue[col-1].size();
+        vector<int> aux(N);
+        aux[0]=1;
+        for(int i=1;i<N;i++){
+            aux[i]=Blue[col-1][i-1];
+            Blue[col-1][i-1]=aux[i-1];
+        }
+        Blue[col-1][N-1]=aux[N-1];
         return;
     }
 
@@ -102,8 +107,14 @@ void RED::update(vector<int>::iterator point ,int row, int N_col){
         (*point)=(*point)+1;
         return;
     }else{
-        Red[row-1].erase(point);
-        Red[row-1].insert(Red[row-1].begin(),1);//migliorare
+        int N=Red[row-1].size();
+        vector<int> aux(N);
+        aux[0]=1;
+        for(int i=1;i<N;i++){
+            aux[i]=Red[row-1][i-1];
+            Red[row-1][i-1]=aux[i-1];
+        }
+        Red[row-1][N-1]=aux[N-1];
         return;
     }
 }
@@ -111,11 +122,15 @@ void RED::update(vector<int>::iterator point ,int row, int N_col){
 
 void Matrix::update(int iteration){
     for(int it=0;it<iteration;it++){
-        vector<int> position;
-        vector< vector<int>::iterator> points;
+
         if(move_blue){
-            //QUI COMDANDO OMP
-            for(int j=1;j<=N_col;j++){
+        #pragma omp parallel
+        {//inizio parallelo
+            vector<int> position;
+            vector< vector<int>::iterator> points;
+            int n_thread=omp_get_thread_num();
+            int n_tot=omp_get_num_threads();
+            for(int j=1+n_thread;j<=N_col;j=j+n_tot){
                 if(blue[j]!=0){
                     auto last=blue.end(j);
                     for(auto i=blue.begin(j);i<last;i++){
@@ -142,10 +157,18 @@ void Matrix::update(int iteration){
             for(int k=0;k<N_move;k++){
                 blue.update(points[k],position[k],N_row);
             }
+            #pragma omp barrier
+            }//fine parallelo
             //cambio iterazione
             move_blue=false;
         }else{
-            for(int i=1;i<=N_row;i++){
+        #pragma omp parallel
+        {//inizio parallelo
+            vector<int> position;
+            vector< vector<int>::iterator> points;
+            int n_thread=omp_get_thread_num();
+            int n_tot=omp_get_num_threads();
+            for(int i=1+n_thread;i<=N_row;i=i+n_tot){
                 if(red[i]!=0){
                     auto last=red.end(i);
                     for(auto j=red.begin(i);j<last;j++){
@@ -173,6 +196,8 @@ void Matrix::update(int iteration){
             for(int k=0;k<N_move;k++){
                 red.update(points[k],position[k],N_col);
             }
+            #pragma omp barrier
+        }
             //cambio iterazione
             move_blue=true;
         }

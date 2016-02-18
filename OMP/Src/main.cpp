@@ -46,6 +46,7 @@ int main (){
         exit(1);
     }
     A.update(iteration[0]);
+    A.print(iteration[0]);
     for (unsigned int i=1;i<N;i++){
     A.update(iteration[i]-iteration[i-1]);
     A.print(iteration[i]);

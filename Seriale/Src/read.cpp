@@ -76,6 +76,11 @@ Matrix::Matrix(string input){
         int value;
         string s;
         ifstream f(input);
+        if(!f){//check file giusto
+
+            cout<<"file non esiste"<<endl;
+            exit(1);
+        }
         getline(f,s);
         int first=1;
         int col(1); //indice colonna che sto leggendo
