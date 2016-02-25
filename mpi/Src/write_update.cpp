@@ -5,6 +5,7 @@
 #include<classi.hpp>
 #include<string>
 #include<sstream>
+#include<algorithm>
 #include <mpi.h>
 
 //ritorn 1 se ho elemento

@@ -6,55 +6,20 @@
 #include<string>
 #include<sstream>
 #include <mpi.h>
+#include<algorithm>
+
 
 //ritorn 1 se ho elemento
 int BLUE::exist(int row, int col){
-    int N=Blue[col-1].size();
-    int pos=N/2;
-    //solo un elemento
-    if(pos==0) return Blue[col-1][0]==row;
-    //più elementi
-    int move=N/2;
-
-    while(move!=0){
-        if(Blue[col-1][pos]==row) return 1;
-        move=move/2;
-        if(Blue[col-1][pos]<row){ pos=pos+move;}
-        else{ pos=pos-move;}
-    }
-    //primo e ultimo
-    if(Blue[col-1][0]==row) return 1;
-    if(Blue[col-1][N-1]==row) return 1;
-
+    if(binary_search(Blue[col-1].begin(),Blue[col-1].end(),row)) return 1;
     return 0;
 }
 
 //ritorn 1 se ho elemento
 int RED::exist(int row, int col){
-    int N=Red[row-1].size();
-    int pos=N/2;
-
-//solo un elemento
-    if(pos==0) return Red[row-1][0]==col;
-    //più elementi
-    int move=N/2;
-    while(move!=0){
-        if(Red[row-1][pos]==col) return 1;
-        move=move/2;
-        if(Red[row-1][pos]<col){ pos=pos+move;}
-        else{ pos=pos-move;}
-    }
-    //primo e ultimo
-    if(Red[row-1][0]==col) return 1;
-    if(Red[row-1][N-1]==col) return 1;
-
+    if(binary_search(Red[row-1].begin(),Red[row-1].end(),col)) return 1;
     return 0;
 }
-
-
-
-
-
 
 //passo iterator dell'elemento da modificare e l'indice di colonna se ritorna alla prima riga
 void BLUE::update(int point ,int col, int N_row){
@@ -97,6 +62,7 @@ void RED::update(int point ,int row, int N_col){
 
 void Matrix::update_blue(int col, vector<int>* v){
     int N=blue.size(col);
+    vector<int> aux_1;
         if(blue[col]!=0){
                     for(int i=0;i<N;i++){
                         int aux=blue.element(col,i);
@@ -106,7 +72,8 @@ void Matrix::update_blue(int col, vector<int>* v){
                             if(r+b==0){
                                 (*v).push_back(i);
                                 (*v).push_back(col);
-                                blue.update(i,col,N_row);
+                                aux_1.push_back(i);
+                                aux_1.push_back(col);
                             }
 
                         }else{
@@ -115,16 +82,23 @@ void Matrix::update_blue(int col, vector<int>* v){
                             if(r+b==0){
                                 (*v).push_back(i);
                                 (*v).push_back(col);
-                                blue.update(i,col,N_row);
+                                aux_1.push_back(i);
+                                aux_1.push_back(col);
                             }
                         }
 
                     }
         }
+        int K;
+        K=aux_1.size();
+        for(int j=0;j<K-1;j=j+2){
+            blue.update(aux_1[j],aux_1[j+1],N_row);
+        }
 }
 
 void Matrix::update_red(int row, vector<int>* v){
-    int N=red.size(row);
+        int N=red.size(row);
+        vector<int> aux_1;
         if(red[row]!=0){
                     for(int i=0;i<N;i++){
                         int aux=red.element(row,i);
@@ -134,20 +108,27 @@ void Matrix::update_red(int row, vector<int>* v){
                             if(r+b==0){
                                 (*v).push_back(i);
                                 (*v).push_back(row);
-                                red.update(i,row,N_col);
+                                aux_1.push_back(i);
+                                aux_1.push_back(row);
                             }
 
                         }else{
-                            int r=red.exist(1,row);
-                            int b=blue.exist(1,row);
+                            int r=red.exist(row,1);
+                            int b=blue.exist(row,1);
                             if(r+b==0){
                                 (*v).push_back(i);
                                 (*v).push_back(row);
-                                red.update(i,row,N_col);
+                                aux_1.push_back(i);
+                                aux_1.push_back(row);
                             }
                         }
 
                     }
+        }
+        int K;
+        K=aux_1.size();
+        for(int j=0;j<K-1;j=j+2){
+            red.update(aux_1[j],aux_1[j+1],N_col);
         }
 }
 

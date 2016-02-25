@@ -13,7 +13,8 @@ void BLUE::add(int row, int col){
 
     if(col>N_col){
         int j(Blue.size());
-        vector<int> aux{0};
+        vector<int> aux;
+        aux.push_back(0);
         while(j<col-1){
             Blue.push_back(aux);
             j++;
@@ -37,7 +38,8 @@ void BLUE::add(int row, int col){
 void RED::add(int row, int col){
     if(row>N_row){
         int i(Red.size());
-        vector<int> aux{0};
+        vector<int> aux;
+        aux.push_back(0);
         while(i<row-1){
             Red.push_back(aux);
             i++;
@@ -60,7 +62,8 @@ void RED::add(int row, int col){
 
 void BLUE::add_last_col(int Col){
     while(N_col!=Col){
-        vector<int> aux{0};
+        vector<int> aux;
+        aux.push_back(0);
         Blue.push_back(aux);
         N_col=N_col+1;
     }
@@ -68,15 +71,22 @@ void BLUE::add_last_col(int Col){
 
 void RED::add_last_row(int Row){
     while(N_row!=Row){
-        vector<int> aux{0};
+        vector<int> aux;
+        aux.push_back(0);
         Red.push_back(aux);
         N_row=1+N_row;
     }
 };
 
-void Matrix::compile(string input){
+void Matrix::compile(string input_aux){
         int value;
         string s;
+
+    int K=input_aux.size();
+    char input[K];
+    for(int i=0;i<K;i++){
+    input[i]=input_aux[i];
+    }
         ifstream f(input);
         if(!f){//check file giusto
 
@@ -89,7 +99,7 @@ void Matrix::compile(string input){
         int col(1); //indice colonna che sto leggendo
         int row(1); //indice riga che sto leggendo
 	while(getline(f,s)){
-            for(auto it=s.begin();it<s.end();it++){//prima riga
+            for(string::iterator it=s.begin();it<s.end();it++){//prima riga
 
                 value=atoi(&(*it));
                 if(value==1){
@@ -138,7 +148,12 @@ void Matrix::print(int iteration){
     output.push_back('s');
     output.push_back('v');
     ofstream out;
-    out.open(output,ios::trunc);
+    int K=output.size();
+    char output_aux[K];
+    for(int i=0;i<K;i++){
+    output_aux[i]=output[i];
+    }
+    out.open(output_aux,ios::trunc);
 
     for(int i=1; i<=N_row;i++){
      for(int j=1; j<N_col;j++){

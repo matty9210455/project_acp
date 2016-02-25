@@ -8,73 +8,33 @@
 
 using namespace std;
 
-void update(Matrix &A, int iteration){
-    int n_pr;//numero processore
-    MPI_Comm_rank(MPI_COMM_WORLD, &n_pr);
-    int p;//numero totali processori
-    MPI_Comm_size(MPI_COMM_WORLD, &p);
-    int N_col=A.get_N_col();
+void update(Matrix &A,int n_pr,int p, vector<int>* rossi, vector<int>* blu){
     int N_row=A.get_N_row();
-
-for(int it=0;it<iteration;it++){
-    if(A.who_move()){
-        vector<int> v;
+    int N_col=A.get_N_col();
+        if(A.who_move()){
         //controllo e aggiornamento a processore
-        for(int col=n_pr+1; col<=N_col; col=col+p){
-            A.update_blue(col,&v);
-        }
-        MPI_Barrier(MPI_COMM_WORLD);
-        //merge
-        for (int proc=0; proc<p;proc++){
-            int aux;
-            vector<int> fix;
-            int N;
-            if(n_pr==proc) N=v.size();
-            MPI_Bcast( &N,1, MPI_INT,proc, MPI_COMM_WORLD);
-            for(int i=0;i<N;i++){
-                if(n_pr==proc) aux=v[i];
-                MPI_Bcast( &aux,1, MPI_INT,proc, MPI_COMM_WORLD);
-                if(n_pr!=proc) fix.push_back(aux);
+            for(int col=n_pr+1; col<=N_col; col=col+p){
+                A.update_blue(col,blu);
             }
-
-            if(n_pr!=proc) A.update(fix,true);
-            MPI_Barrier(MPI_COMM_WORLD);
+        }else{
+            for(int row=n_pr+1;row<=N_row;row=row+p)
+                A.update_red(row,rossi);
         }
-                MPI_Barrier(MPI_COMM_WORLD);
         A.update_who_move();
-    }else{
-        vector<int> v;
-        //controllo e aggiornamento a processore
-        for(int row=n_pr+1; row<=N_row; row=row+p){
-            A.update_red(row,&v);
-        }
+}
 
-        MPI_Barrier(MPI_COMM_WORLD);
-        //merge
-        for (int proc=0; proc<p;proc++){
-            int aux;
-            vector<int> fix;
-            int N;
-            if(n_pr==proc) N=v.size();
-            MPI_Bcast( &N,1, MPI_INT,proc, MPI_COMM_WORLD);
-            for(int i=0;i<N;i++){
-                if(n_pr==proc) aux=v[i];
-                MPI_Bcast( &aux,1, MPI_INT,proc, MPI_COMM_WORLD);
-                if(n_pr!=proc) fix.push_back(aux);
-            }
-            if(n_pr!=proc) A.update(fix,false);
-            MPI_Barrier(MPI_COMM_WORLD);
-        }
-                MPI_Barrier(MPI_COMM_WORLD);
-        A.update_who_move();
+void transfer(vector<int>* recv, int root,int n_pr, vector<int>& send ){
+    int aux;
+    int N;
+    if(n_pr==root){ N=send.size();}
+    MPI_Bcast( &N,1, MPI_INT,root, MPI_COMM_WORLD);
+    for(int j=0;j<N;j++){
+        if(n_pr==root){ aux=send[j];}
+        MPI_Bcast(&aux,1, MPI_INT,root, MPI_COMM_WORLD);
+        if(n_pr!=root){ (*recv).push_back(aux);}
     }
 
-            MPI_Barrier(MPI_COMM_WORLD);
-
 }
-
-}
-
 
 void transfer(Matrix &A, int root){
     int n_pr;//numero processore
@@ -143,7 +103,12 @@ int main (int argc, char ** argv){
     int value;
 
     //apertura e controllo file
-    string input("problem.csv");
+    string input_aux("problem.csv");
+    int K=input_aux.size();
+    char input[K];
+    for(int i=0;i<K;i++){
+    input[i]=input_aux[i];
+    }
     ifstream f(input);
     string s;
     if(!f){//check file giusto
@@ -155,19 +120,20 @@ int main (int argc, char ** argv){
 
     //numero iterazioni
     getline(f,s);
-    for(auto it=s.begin();it<s.end();it++){//iterazioni
+    for(string::iterator it=s.begin();it<s.end();it++){//iterazioni
             value=atoi(&(*it));
             iteration.push_back(value);
             while((*it)!=','&& it<s.end()) it++;
     }
     f.close();
 
-    A.compile(input);
+    A.compile(input_aux);
     }
     transfer(A,0);
 
+    A.print(n_pr);
+    //trasferisco iterazioni
     int N_it=0;
-
     if(n_pr==0) N_it=iteration.size();
     MPI_Bcast( &N_it,1, MPI_INT,0, MPI_COMM_WORLD);
     for(int i=0;i<N_it;i++){
@@ -183,17 +149,57 @@ int main (int argc, char ** argv){
         MPI_Finalize();
         exit(1);
     }
-
-
     MPI_Barrier(MPI_COMM_WORLD);
-    update(A,iteration[0]);
-    if(n_pr==0) A.print(iteration[0]);
+//update
+int iter;
+iter=iteration[0];
+for(int it=0;it<iter;it++){
+    vector<int> rossi;
+    vector<int> blu;
+    vector<int> fix_blu;
+    vector<int> fix_rossi;
+
+    update(A,n_pr,p,&rossi,&blu);
     MPI_Barrier(MPI_COMM_WORLD);
-    for (unsigned int i=1;i<N_it;i++){
-        update(A,iteration[i]-iteration[i-1]);
-        if(n_pr==0) A.print(iteration[i]);
-            MPI_Barrier(MPI_COMM_WORLD);
+
+    for( int proc=0; proc<p;proc++){
+        transfer(&fix_blu, proc, n_pr, blu );
+        transfer(&fix_rossi, proc, n_pr, rossi );
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    A.update(fix_blu,true);
+    A.update(fix_rossi,false);
+
+}
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(n_pr==0) A.print(iteration[0]);
+
+    for (unsigned int i=1;i<N_it;i++){
+        iter=iteration[i]-iteration[i-1];
+        for(int it=0;it<iter;it++){
+            vector<int> rossi;
+            vector<int> blu;
+            vector<int> fix_blu;
+            vector<int> fix_rossi;
+
+            update(A,n_pr,p,&rossi,&blu);
+            MPI_Barrier(MPI_COMM_WORLD);
+
+            for( int proc=0; proc<p;proc++){
+                transfer(&fix_blu, proc, n_pr, blu );
+                transfer(&fix_rossi, proc, n_pr, rossi );
+            }
+
+            MPI_Barrier(MPI_COMM_WORLD);
+            A.update(fix_blu,true);
+            A.update(fix_rossi,false);
+
+        }
+        MPI_Barrier(MPI_COMM_WORLD);
+        if(n_pr==0) A.print(iteration[i]);
+    }
+
     MPI_Finalize();
 	return 0;
 };

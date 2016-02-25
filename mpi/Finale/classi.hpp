@@ -12,9 +12,9 @@ using namespace std;
 class BLUE{
 private:
     vector< vector<int> > Blue;
-    int N_col=0;
+    int N_col;
 public:
-
+    BLUE(){N_col=0;}
     int exist(int row, int col);
     void add(int row, int col);
     void add_last_col(int Col);
@@ -31,8 +31,9 @@ public:
 class RED{
 private:
     vector< vector<int> > Red;
-    int N_row=0;
+    int N_row;
 public:
+    RED(){N_row=0;}
     int exist(int row, int col);
     void add(int row, int col);
     void add_last_row(int Row);
@@ -48,10 +49,11 @@ class Matrix{
 	private:
                 BLUE blue; //primo indice da colonna
                 RED red;  //primo indice da riga
-                int N_col=0;
-                int N_row=0;
-                bool move_blue=true;
+                int N_col;
+                int N_row;
+                bool move_blue;
 	public:
+                Matrix(){N_col=0; N_row=0; move_blue=true;}
                 int get_N_row(){return N_row;};
                 int get_N_col(){return N_col;};
                 void update_N_row(int n){N_row=n;};
@@ -67,7 +69,8 @@ class Matrix{
                 void update(int iteration);
                 void transfer(int root);
                 void update(vector<int>& v, bool blu);
-                void update_who_move(){move_blue=!move_blue;};
+                void update_who_move(){if(move_blue) move_blue=false;
+                                        else move_blue=true;};
                 bool who_move(){return move_blue;};
                 void update_blue(int col, vector<int> * v);
                 void update_red(int row, vector<int> * v);
