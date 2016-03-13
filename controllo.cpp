@@ -3,25 +3,22 @@
 #include<vector>
 #include<stdlib.h>
 
-using namespace std;
-
 int main(){
     int value;
     string s_mie;
     string s_prof;
-    ifstream f_mie("3.csv",ios::in);
-    ifstream f_prof("problem.csv",ios::in);
+    ifstream f_mie("20_m.csv",ios::in);
+    ifstream f_prof("20_p.csv",ios::in);
 	vector< vector<int> > mie;
 	vector< vector<int> > prof;
-	getline(f_prof,s_prof);
     while(getline(f_mie,s_mie) && getline(f_prof,s_prof)){
         vector<int> aux_1;
         vector<int> aux_2;
-        for(string::iterator it=s_mie.begin();it<s_mie.end();it++){//prima riga
+        for(auto it=s_mie.begin();it<s_mie.end();it++){//prima riga
             value=atoi(&(*it));
             aux_1.push_back(value);
         }
-        for(string::iterator it=s_prof.begin();it<s_prof.end();it++){//prima riga
+        for(auto it=s_prof.begin();it<s_prof.end();it++){//prima riga
             value=atoi(&(*it));
             aux_2.push_back(value);
         }
@@ -31,14 +28,7 @@ int main(){
 	f_mie.close();
 	f_prof.close();
 	int N_1=mie.size();
-	int N_2=mie[0].size();
-	int N_1_p=prof.size();
-	int N_2_p=prof[0].size();
-	if(N_1!=N_1_p || N_2!=N_2_p) {
-        cout<<"errore di dimensione";
-        return 0;
-
-	}
+	int N_2=prof.size();
     for(int i=0;i<N_1;i++){
         for(int j=0;j<N_2;j++){
             if(mie[i][j]-prof[i][j]!=0){
